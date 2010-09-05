@@ -65,6 +65,15 @@
 ;; バッファ移動
 (iswitchb-mode 1)
 
+;; ファイルパス表示 -> screenだとダメ!?
+;;(setq frame-title-format
+;;      (format "%%f - Emacs@%s" (system-name)))
+
+;; auto-complete
+(require 'auto-complete-config)
+(add-to-list 'ac-dictionary-directories "~/.emacs.d/elisp/ac-dict")
+(ac-config-default)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; .emacs より
 
 ;; php-mode
