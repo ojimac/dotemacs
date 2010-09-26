@@ -3,12 +3,33 @@
   (let (path)
     (dolist (path paths paths)
       (let ((default-directory (expand-file-name (concat user-emacs-directory path))))
-  	    (add-to-list 'load-path default-directory)
-  	    (if (fboundp 'normal-top-level-add-subdirs-to-load-path)
-  		(normal-top-level-add-subdirs-to-load-path))))))
+            (add-to-list 'load-path default-directory)
+            (if (fboundp 'normal-top-level-add-subdirs-to-load-path)
+                (normal-top-level-add-subdirs-to-load-path))))))
 
 ;; elispとconfディレクトリをサブディレクトリごとload-pathに追加
 (add-to-load-path "elisp" "conf")
+
+;; cake el
+(require 'cl)
+(require 'anything)
+(require 'historyf)
+(require 'cake)
+;; cake.elが自動的にカレントファイルがCakePHPプロジェクト内のファイルか
+;; どうかを判定し、マイナーモードを有効にします。
+(global-cake t)
+;; デフォルトのキーバインドを有効化します。
+(cake-set-default-keymap)
+;; AutoComplete Support
+(require 'ac-cake)
+(add-hook 'php-mode-hook
+          (lambda ()
+            (make-local-variable 'ac-sources)
+            (setq ac-sources '(ac-source-cake
+                               ac-source-gtags
+                               ac-source-yasnippet
+                               ac-source-php-completion
+                               ))))
 
 ;; (install-elisp "http://www.emacswiki.org/emacs/download/auto-install.el")
 (when (require 'auto-install nil t)
@@ -38,8 +59,8 @@
 (setq load-path
       (append
        (list
- 	(expand-file-name "~/.emacs.d/elisp/")
- 	)
+        (expand-file-name "~/.emacs.d/elisp/")
+        )
        load-path))
 
 ;;C-hをバックスペースに割り当てる
@@ -74,87 +95,26 @@
 (add-to-list 'ac-dictionary-directories "~/.emacs.d/elisp/ac-dict")
 (ac-config-default)
 
+;; Egg( Git fornt end )
+;; (install-elisp "http://github.com/byplayer/egg/raw/master/egg.el")
+(when (executable-find "git"))
+
+;; tramp
+(add-to-list 'load-path "~/.emacs.d/elisp/tramp/lisp/")
+(require 'tramp)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; .emacs より
 
 ;; php-mode
-(autoload 'php-mode "php-mode" "PHP mode" t)
-
-(defcustom php-file-patterns (list "\\.php[s34]?\\'" "\\.phtml\\'" "\\.inc\\'" "\\.ctp\\'")
-  "*List of file patterns for which to automatically invoke php-mode."
-  :type '(repeat (regexp :tag "Pattern"))
-  :group 'php)
-
-(let ((php-file-patterns-temp php-file-patterns))
-  (while php-file-patterns-temp
-    (add-to-list 'auto-mode-alist
-                 (cons (car php-file-patterns-temp) 'php-mode))
-    (setq php-file-patterns-temp (cdr php-file-patterns-temp))))
-
-;;php-modeのインデントとタブ幅設定                                                                                                                                                
-(add-hook 'php-mode-user-hook '(lambda ()
-             (setq c-basic-offset 4)
-             (setq c-tab-width 4)
-             (setq c-indent-level 4)
-             (setq tab-width 4)
-             (setq indent-tabs-mode t)
-             (setq-default tab-width 4)
-))
-
-;;php CodeIgniter style
-(defun php-ci ()
-  "php mode with adjusted defaults for use with the CodeIgniter Framework."
-  (interactive)
-  (php-mode)
-  (setq c-basic-offset 4)
-  (setq c-tab-width 4)
-  (setq c-indent-level 4)
-  (setq tab-width 4)
-  (setq indent-tabs-mode t)
-  (setq-default tab-width 4)
-  )
-
-;; php CakePHP style
-(defun php-cake ()
-  "php mode with adjusted defaults for use with the CakePHP Framework."
-  (interactive)
-  (php-mode)
-  (setq c-basic-offset 4)
-  (setq c-tab-width 4)
-  (setq c-indent-level 4)
-  (setq tab-width 4)
-  (setq indent-tabs-mode nil)
-  (setq-default tab-width 4)
-  )
-
-;; ;; ruby-mode
-;; (autoload 'ruby-mode "ruby-mode"
-;;   "Mode for editing ruby source files" t)
-;; (setq auto-mode-alist
-;;       (append '(("\\.rb$" . ruby-mode)) auto-mode-alist))
-;; (setq interpreter-mode-alist (append '(("ruby" . ruby-mode))
-;;                                      interpreter-mode-alist))
-;; (autoload 'run-ruby "inf-ruby"
-;;   "Run an inferior Ruby process")
-;; (autoload 'inf-ruby-keys "inf-ruby"
-;;   "Set local key defs for inf-ruby in ruby-mode")
-;; (add-hook 'ruby-mode-hook
-;;           '(lambda () (inf-ruby-keys)))
-
-;; ;; ruby-electric
-;; (require 'ruby-electric)
-;; (add-hook 'ruby-mode-hook '(lambda () (ruby-electric-mode t)))
-
-;; ;; rubydb
-;; (autoload 'rubydb "rubydb3x"
-;;   "run rubydb on program file in buffer *gud-file*.
-;; the directory containing file becomes the initial working directory
-;; and source-file directory for your debugger." t)
+(load-library "php-mode")
+(require 'php-mode)
+(setq php-mode-force-pear t)
 
 ;; js2-mode
 (autoload 'js2-mode "js2" nil t)
 (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
-;;(setq js2-indent-level 4)
-;;(setq indent-tabs-mode t)
+(setq js2-indent-level 4)
+(setq indent-tabs-mode t)
 
 ;;; dired を使って、一気にファイルの coding system (漢字) を変換する
 (require 'dired-aux)
@@ -198,3 +158,51 @@
    (function dired-convert-coding-system) arg 'convert-coding-system t))
 
 (setq dired-default-file-coding-system 'utf-8)
+
+;; タブ, 全角スペース、改行直前の半角スペースを表示する
+(when (require 'jaspace nil t)
+  (when (boundp 'jaspace-modes)
+    (setq jaspace-modes (append jaspace-modes
+                                (list 'php-mode
+                                      'yaml-mode
+                                      'javascript-mode
+                                      'ruby-mode
+                                      'text-mode
+                                      'fundamental-mode))))
+  (when (boundp 'jaspace-alternate-jaspace-string)
+    (setq jaspace-alternate-jaspace-string "□"))
+  (when (boundp 'jaspace-highlight-tabs)
+    (setq jaspace-highlight-tabs ?.))
+  (add-hook 'jaspace-mode-off-hook
+            (lambda()
+              (when (boundp 'show-trailing-whitespace)
+                (setq show-trailing-whitespace nil))))
+  (add-hook 'jaspace-mode-hook
+            (lambda()
+              (progn
+                (when (boundp 'show-trailing-whitespace)
+                  (setq show-trailing-whitespace t))
+                (face-spec-set 'jaspace-highlight-jaspace-face
+                               '((((class color) (background light))
+                                  (:foreground "blue"))
+                                 (t (:foreground "green"))))
+                (face-spec-set 'jaspace-highlight-tab-face
+                               '((((class color) (background light))
+                                  (:foreground "red"
+                                               :background "unspecified"
+                                               :strike-through nil
+                                               :underline t))
+                                 (t (:foreground "purple"
+                                                 :background "unspecified"
+                                                 :strike-through nil
+                                                 :underline t))))
+                (face-spec-set 'trailing-whitespace
+                               '((((class color) (background light))
+                                  (:foreground "red"
+                                               :background "unspecified"
+                                               :strike-through nil
+                                               :underline t))
+                                 (t (:foreground "purple"
+                                                 :background "unspecified"
+                                                 :strike-through nil
+                                                 :underline t))))))))
