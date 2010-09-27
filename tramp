@@ -1,0 +1,5 @@
+;; -*- emacs-lisp -*- <10/09/05 23:10:31 ~/.emacs.d/tramp>
+;; Tramp connection history.  Don't change this file.
+;; You can delete it, forcing Tramp to reapply the checks.
+
+(nil)

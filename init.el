@@ -30,6 +30,8 @@
                                ac-source-yasnippet
                                ac-source-php-completion
                                ))))
+;; .ctp用にnxml-modeをload
+(load "~/.emacs.d/elisp/nxml-mode-20041004/rng-auto.el")
 
 ;; (install-elisp "http://www.emacswiki.org/emacs/download/auto-install.el")
 (when (require 'auto-install nil t)
